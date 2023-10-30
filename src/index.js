@@ -29,10 +29,10 @@ app.get('/', async (req, res) => {
     results = [];
     let matched = 0;
     for (const item of spotifyRes.tracks.items) {
-        let subQuery = `${item.track.album.name} ${item.track.album.artists[0].name}`;
+        let subQuery = encodeURIComponent(`${item.track.album.name} ${item.track.album.artists[0].name}`);
         console.log(subQuery);
         let subSR = await subsonicApi.searchAlbums(subQuery);
-        let subsonicAlbum = subSR["searchResult2"]?.album;
+        let subsonicAlbum = subSR?.album;
         if(Array.isArray(subsonicAlbum)) {
             for (let i = 0; i < subsonicAlbum.length; i++) {
                 if(subsonicAlbum[i].album.toLowerCase().startsWith(item.track.album.name.toLowerCase())) {
