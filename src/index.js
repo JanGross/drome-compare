@@ -1,9 +1,12 @@
 require('dotenv').config();
 const express = require('express')
 const { SpotifyApi } = require("@spotify/web-api-ts-sdk");
+const Subsonic = require('./subsonic.js');
 
 const app = express()
 const port = 3000
+
+const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
 
 const spotifyApi = SpotifyApi.withClientCredentials(
     process.env.SPOTIFY_CLIENT_ID,
