@@ -15,6 +15,23 @@
         </form>
     </div>
     <div>
+        <h2>Results</h2>
+        <% results.forEach(result => { %>
+            <div>
+                <div><%= result.albumName %></div>
+                <div><%= result.albumTotal %></div>
+                <% if (result.matched) { %>
+                    <div>✔️</div>
+                    <div><%= result.matched.album %></div>
+                    <div><%= result.matched.songCount %></div>
+                <% } else { %>
+                    <div>❌</div>
+                    <div>No Match</div>     
+                <% } %>
+            </div>
+        <% });%>
+    </div>
+    <div>
         <h2>Debug</h2>
         <p>submitted purl <%= purl %></p>
         <p>subsonic endpoint</p>

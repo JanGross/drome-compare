@@ -28,7 +28,7 @@ module.exports = class Subsonic {
     }
 
     async searchAlbums(query) {
-        let params = `query=${query}&songCount=0&artistCount=0`;
+        let params = `query=${query}&songCount=0&artistCount=0&albumCount=1`;
         let res = await this.apiRequest("search2", params);
         return res.result;
     }
