@@ -34,11 +34,13 @@ app.get('/', async (req, res) => {
         let subsonicAlbum = subSR["searchResult2"]?.album;
         let icon = '❌';
         if (subsonicAlbum) {
+            //Only exactl album name matches
             if (subsonicAlbum.name == item.track.album.name) {
                 icon = '✔️';
                 console.log(`Matched ${subsonicAlbum.name} ${subsonicAlbum.id}`);
             }
-            if(item.track.album.total_tracks != subsonicAlbum.songCount) {
+            //More tracks on Spotify
+            if(item.track.album.total_tracks > subsonicAlbum.songCount) {
                 icon = '⚠️';
             }
         }
@@ -54,7 +56,7 @@ app.get('/', async (req, res) => {
             });
         }
     };
-    res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results });
+    res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results, playlistName: spotifyRes.name, totalTracks: spotifyRes.tracks.total });
 });
 
 (async () => {

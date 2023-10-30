@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,8 @@
             height: 200px;
             position: relative;
             text-align: center;
+            margin: 15px;
+            box-shadow: 0 0 10px black;
         }
         .cover {
             width: 100%;
@@ -31,8 +33,14 @@
             position: absolute;
             bottom: 0;
             background: linear-gradient(0deg, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 75%) 50%, rgba(0,224,255,0) 100%);
-            padding: 25px 0 15px 0;
+            height: 100%;
             width: 100%;
+        }
+        .overlayText {
+            width: 100%;
+            bottom: 0;
+            position: absolute;
+            padding: 10px;
         }
         .icon {
             position: absolute;
@@ -56,20 +64,23 @@
         </form>
     </div>
     <div>
-        <h2>Results</h2>
-        <div style="display:flex;justify-content: space-evenly;flex-wrap: wrap;">
+        <h2>Results for <%= playlistName %></h2>
+        <h4><%= results.length %> albums based on <%= totalTracks %> tracks</h4>
+        <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
             <% results.forEach(result => { %>
                 <div class="result">
                     <img class="cover" src="<%= result.image %>" alt="">
-                    <div class="icon"><%= result.icon %></div>
                     <div class="overlay">
-                        <div class="albumTitle"><%= result.albumName %></div>
-                        <% if (result.matched) { %>
-                            <div><%= result.albumTotal %> / <%= result.matched.songCount %></div>
-                        <% } else { %>
-                            <div>No Match</div>     
-                        <% } %>
+                        <div class="overlayText">
+                            <div class="albumTitle"><%= result.albumName %></div>
+                            <% if (result.matched) { %>
+                                <a target="_blank" href="https://listen.minzkraut.com/app/#/album/<%= result.matched.id %>/show"><%= result.albumTotal %> / <%= result.matched.songCount %></a>
+                            <% } else { %>
+                                <div>No Match</div>     
+                            <% } %>
+                        </div>
                     </div>
+                    <div class="icon"><%= result.icon %></div>
                 </div>
             <% });%>
         </div>
