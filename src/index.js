@@ -41,16 +41,18 @@ app.get('/', async (req, res) => {
             if(item.track.album.total_tracks != subsonicAlbum.songCount) {
                 icon = '⚠️';
             }
-        } 
-        results.push({
-            icon: icon,
-            name: item.track.name,
-            image: item.track.album.images[0].url,
-            albumName: item.track.album.name,
-            albumID: item.track.album.id,
-            albumTotal: item.track.album.total_tracks,
-            matched: subsonicAlbum
-        });
+        }
+        if(!results.some(el => el.albumID === item.track.album.id)) {
+            results.push({
+                icon: icon,
+                name: item.track.name,
+                image: item.track.album.images[0].url,
+                albumName: item.track.album.name,
+                albumID: item.track.album.id,
+                albumTotal: item.track.album.total_tracks,
+                matched: subsonicAlbum
+            });
+        }
     };
     res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results });
 });
