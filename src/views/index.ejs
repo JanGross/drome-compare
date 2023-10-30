@@ -66,46 +66,10 @@
 </head>
 
 <body>
-    <div class="container">
-        <h2> Drome Compare </h2>
-        <form action="/" method="GET">
-            <input type="text" name="playlist" placeholder="Playlist url"> <button> Compare </button>
-        </form>
-    </div>
-    <div>
-        <h2>Results for <%= playlistName %></h2>
-        <h4><%= results.length %> albums based on <%= totalTracks %> tracks - <%= results.length - matchedCount %> unmatched</h4>
-        <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
-            <% results.forEach(result => { %>
-                <div class="result <%- result.matched ? 'matched' : 'unmatched' %>">
-                    <img class="cover" src="<%= result.image %>" alt="">
-                    <div class="overlay">
-                        <div class="overlayText">
-                            <div class="albumTitle"><%= result.albumName %></div>
-                            <% if (result.matched) { %>
-                                <% if (result.matched.album != result.albumName ) { %>
-                                    <%= result.matched.album %>
-                                <% } %>
-                                <a target="_blank" href="https://listen.minzkraut.com/app/#/album/<%= result.matched.id %>/show"><%= result.albumTotal %> / <%= result.matched.songCount %></a>
-                            <% } else { %>
-                                <div>No Match</div>     
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="icon"><%= result.icon %></div>
-                </div>
-            <% });%>
-        </div>
-    </div>
-    <div>
-        <h2>Debug</h2>
-        <p>submitted purl <%= purl %></p>
-        <p>subsonic endpoint</p>
-        <h4>Api result Spotify:</h4>
-        <pre>
-            <%= JSON.stringify(spotifyRes, null, 2) %>
-        </pre>
-    </div>
+    <%- include ('./partials/searchHeader.ejs') %>
+    <% if(locals.results) { %>
+        <%- include ('partials/results.ejs') %>
+    <% } %>
 </body>
 
 </html>

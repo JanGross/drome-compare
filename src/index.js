@@ -23,6 +23,7 @@ function urlToID (url) {
 }
 
 app.get('/', async (req, res) => {
+    if(!req.query.playlist) { res.render('index'); return }
     let purl = urlToID(req.query.playlist);
     let spotifyRes = await spotifyApi.playlists.getPlaylist(purl,market=undefined,fields="name,tracks(total,items(track(name,album(name,id,artists,total_tracks,images))))");
     
