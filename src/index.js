@@ -27,6 +27,7 @@ app.get('/', async (req, res) => {
     let spotifyRes = await spotifyApi.playlists.getPlaylist(purl,market=undefined,fields="name,tracks(total,items(track(name,album(name,id,artists,total_tracks,images))))");
     
     results = [];
+    let matched = 0;
     for (const item of spotifyRes.tracks.items) {
         let subQuery = `${item.track.album.name} ${item.track.album.artists[0].name}`;
         console.log(subQuery);
@@ -34,6 +35,8 @@ app.get('/', async (req, res) => {
         let subsonicAlbum = subSR["searchResult2"]?.album;
         let icon = '❌';
         if (subsonicAlbum) {
+            matched++;
+            icon = '❔';
             //Only exactl album name matches
             if (subsonicAlbum.name == item.track.album.name) {
                 icon = '✔️';
@@ -56,7 +59,7 @@ app.get('/', async (req, res) => {
             });
         }
     };
-    res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results, playlistName: spotifyRes.name, totalTracks: spotifyRes.tracks.total });
+    res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results, playlistName: spotifyRes.name, totalTracks: spotifyRes.tracks.total, matchedCount: matched });
 });
 
 (async () => {

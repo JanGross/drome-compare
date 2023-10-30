@@ -53,6 +53,15 @@
         .albumTitle {
             padding: 0 15px;
         }
+
+        a {
+            color:aliceblue;
+            text-decoration: none;
+            display: block;
+        }
+        a::after {
+            content: '💿';
+        }
     </style>
 </head>
 
@@ -65,15 +74,18 @@
     </div>
     <div>
         <h2>Results for <%= playlistName %></h2>
-        <h4><%= results.length %> albums based on <%= totalTracks %> tracks</h4>
+        <h4><%= results.length %> albums based on <%= totalTracks %> tracks - <%= results.length - matchedCount %> unmatched</h4>
         <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
             <% results.forEach(result => { %>
-                <div class="result">
+                <div class="result <%- result.matched ? 'matched' : 'unmatched' %>">
                     <img class="cover" src="<%= result.image %>" alt="">
                     <div class="overlay">
                         <div class="overlayText">
                             <div class="albumTitle"><%= result.albumName %></div>
                             <% if (result.matched) { %>
+                                <% if (result.matched.album != result.albumName ) { %>
+                                    <%= result.matched.album %>
+                                <% } %>
                                 <a target="_blank" href="https://listen.minzkraut.com/app/#/album/<%= result.matched.id %>/show"><%= result.albumTotal %> / <%= result.matched.songCount %></a>
                             <% } else { %>
                                 <div>No Match</div>     
