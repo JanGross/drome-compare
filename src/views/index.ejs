@@ -5,6 +5,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #291528;
+            font-family: 'Noto Sans', sans-serif;
+            color: aliceblue;
+        }
+        .result {
+            margin-bottom: 5px;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            width: 200px;
+            height: 200px;
+            position: relative;
+            text-align: center;
+        }
+        .cover {
+            width: 100%;
+            height:100%;
+        }
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(0deg, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 75%) 50%, rgba(0,224,255,0) 100%);
+            padding: 25px 0 15px 0;
+            width: 100%;
+        }
+        .icon {
+            position: absolute;
+            top: 0;
+            padding: 5px 10px 10px 5px;
+            background: aliceblue;
+            border-radius: 0 0 50%;
+            font-size: 2em;
+        }
+        .albumTitle {
+            padding: 0 15px;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,20 +57,22 @@
     </div>
     <div>
         <h2>Results</h2>
-        <% results.forEach(result => { %>
-            <div>
-                <div><%= result.albumName %></div>
-                <div><%= result.albumTotal %></div>
-                <% if (result.matched) { %>
-                    <div>✔️</div>
-                    <div><%= result.matched.album %></div>
-                    <div><%= result.matched.songCount %></div>
-                <% } else { %>
-                    <div>❌</div>
-                    <div>No Match</div>     
-                <% } %>
-            </div>
-        <% });%>
+        <div style="display:flex;justify-content: space-evenly;flex-wrap: wrap;">
+            <% results.forEach(result => { %>
+                <div class="result">
+                    <img class="cover" src="<%= result.image %>" alt="">
+                    <div class="icon"><%= result.icon %></div>
+                    <div class="overlay">
+                        <div class="albumTitle"><%= result.albumName %></div>
+                        <% if (result.matched) { %>
+                            <div><%= result.albumTotal %> / <%= result.matched.songCount %></div>
+                        <% } else { %>
+                            <div>No Match</div>     
+                        <% } %>
+                    </div>
+                </div>
+            <% });%>
+        </div>
     </div>
     <div>
         <h2>Debug</h2>

@@ -24,21 +24,28 @@ function urlToID (url) {
 
 app.get('/', async (req, res) => {
     let purl = urlToID(req.query.playlist);
-    let spotifyRes = await spotifyApi.playlists.getPlaylist(purl,market=undefined,fields="name,tracks(total,items(track(name,album(name,id,artists,total_tracks))))");
+    let spotifyRes = await spotifyApi.playlists.getPlaylist(purl,market=undefined,fields="name,tracks(total,items(track(name,album(name,id,artists,total_tracks,images))))");
     
     results = [];
     for (const item of spotifyRes.tracks.items) {
         let subQuery = `${item.track.album.name} ${item.track.album.artists[0].name}`;
         console.log(subQuery);
         let subSR = await subsonicApi.searchAlbums(subQuery);
-        let subsonicAlbum = subSR["searchResult2"].album;
+        let subsonicAlbum = subSR["searchResult2"]?.album;
+        let icon = '❌';
         if (subsonicAlbum) {
             if (subsonicAlbum.name == item.track.album.name) {
+                icon = '✔️';
                 console.log(`Matched ${subsonicAlbum.name} ${subsonicAlbum.id}`);
+            }
+            if(item.track.album.total_tracks != subsonicAlbum.songCount) {
+                icon = '⚠️';
             }
         } 
         results.push({
+            icon: icon,
             name: item.track.name,
+            image: item.track.album.images[0].url,
             albumName: item.track.album.name,
             albumID: item.track.album.id,
             albumTotal: item.track.album.total_tracks,
