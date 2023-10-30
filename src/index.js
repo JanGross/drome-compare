@@ -33,6 +33,13 @@ app.get('/', async (req, res) => {
         console.log(subQuery);
         let subSR = await subsonicApi.searchAlbums(subQuery);
         let subsonicAlbum = subSR["searchResult2"]?.album;
+        if(Array.isArray(subsonicAlbum)) {
+            for (let i = 0; i < subsonicAlbum.length; i++) {
+                if(subsonicAlbum[i].album.toLowerCase().startsWith(item.track.album.name.toLowerCase())) {
+                    subsonicAlbum = subsonicAlbum[i];
+                }
+            }
+        }
         let icon = '❌';
         if (subsonicAlbum) {
             matched++;
