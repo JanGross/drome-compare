@@ -1,0 +1,16 @@
+{
+  "name": "drome-compare",
+  "version": "0.0.1",
+  "description": "Check backup completeness of Spotify playlists",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Minz💕",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "formidable": "^3.5.1"
+  }
+}
