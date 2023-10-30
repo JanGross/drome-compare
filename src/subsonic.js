@@ -12,7 +12,6 @@ module.exports = class Subsonic {
 
     async apiRequest(method, additionalArgs=undefined) {
         let url = [this.endpoint,`/${method}?u=${this.user}&t=${this.pwHash}&s=${this.salt}&c=drome-compare&v=1.13.0&`, additionalArgs].join('');
-        console.log(url);
         let res = await fetch(url);
         let xml = await res.text();
         const options = {
