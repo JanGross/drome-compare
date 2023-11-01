@@ -6,6 +6,7 @@ const Subsonic = require('./subsonic.js');
 const app = express()
 const port = 3000
 
+const itemsPerPage = 27;
 const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
 
 const spotifyApi = SpotifyApi.withClientCredentials(
@@ -24,17 +25,17 @@ function urlToID (url) {
 
 app.get('/', async (req, res) => {
     if(!req.query.playlist) { res.render('index'); return }
-    let purl = urlToID(req.query.playlist);
-    let spotifyRes = await spotifyApi.playlists.getPlaylist(purl,market=undefined,fields="name,tracks(total,items(track(name,album(name,id,artists,total_tracks,images))))");
-    console.log(`Fetched ${spotifyRes.tracks.items.length} of ${spotifyRes.tracks.total} tracks`);
-    while (spotifyRes.tracks.items.length < spotifyRes.tracks.total - 1) {
-        let nextSet = await spotifyApi.playlists.getPlaylistItems(purl,market=undefined,fields="items(track(name,album(name,id,artists,total_tracks,images)))",50,spotifyRes.tracks.items.length);
-        spotifyRes.tracks.items.push(...nextSet.items);
-        console.log(`Fetched ${spotifyRes.tracks.items.length} of ${spotifyRes.tracks.total} tracks`);
-    }
+    let pid = urlToID(req.query.playlist);
+    let page = parseInt(req.query.page);
+    console.log(`Requested page ${page} for ${pid}`);
+    let spotifyRes = await spotifyApi.playlists.getPlaylist(pid,market=undefined,fields="name,tracks(total)");
+    console.log(`Fetching ${spotifyRes.name}`);
+    let paginatedSet = await spotifyApi.playlists.getPlaylistItems(pid,market=undefined,fields="items(track(name,album(name,id,artists,total_tracks,images)))",itemsPerPage,(page-1) * itemsPerPage);
+    console.log(`Fetched page ${page} at offset ${itemsPerPage * (page-1)} of ${spotifyRes.tracks.total} tracks`);
+
     results = [];
     let matched = 0;
-    for (const [i, item] of spotifyRes.tracks.items.entries()) {
+    for (const [i, item] of paginatedSet.items.entries()) {
         let subQuery = encodeURIComponent(`${item.track.album.name} ${item.track.album.artists[0]?.name}`);
         let subSR = await subsonicApi.searchAlbums(subQuery);
         let subsonicAlbum = subSR?.album;
@@ -58,7 +59,7 @@ app.get('/', async (req, res) => {
                 icon = '⚠️';
             }
         }
-        console.log(`[${i}/${spotifyRes.tracks.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
+        console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
         if(!results.some(el => el.albumID === item.track.album.id)) {
             results.push({
                 icon: icon,
@@ -71,7 +72,14 @@ app.get('/', async (req, res) => {
             });
         }
     };
-    res.render('index', { purl: purl, spotifyRes: spotifyRes, results: results, playlistName: spotifyRes.name, totalTracks: spotifyRes.tracks.total, matchedCount: matched });
+    res.render('index', { 
+        purl: req.query.playlist, 
+        spotifyRes: spotifyRes, results: results, 
+        playlistName: spotifyRes.name, 
+        currentPage: page,  
+        itemsPerPage: itemsPerPage,
+        totalTracks: spotifyRes.tracks.total, 
+        matchedCount: matched });
 });
 
 (async () => {

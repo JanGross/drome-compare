@@ -1,6 +1,7 @@
 <div>
     <h2>Results for <%= playlistName %></h2>
-    <h4><%= results.length %> albums based on <%= totalTracks %> tracks - <%= results.length - matchedCount %> unmatched</h4>
+    <p><%= results.length %> albums based on <%= itemsPerPage %> tracks (<%= totalTracks %> total) - <%= results.length - matchedCount %> unmatched</p>
+    <p>Page <%= currentPage %> / <%= Math.ceil(totalTracks / itemsPerPage) %></p>
     <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
         <% results.forEach(result => { %>
             <div class="result <%- result.matched ? 'matched' : 'unmatched' %>">
@@ -22,4 +23,18 @@
             </div>
         <% });%>
     </div>
+    <% if (currentPage > 1) { %>
+        <form action="/" method="GET">
+            <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
+            <input type="hidden" name="page" value="<%= (currentPage-1) %>">
+            <button type="submit">Previous Page</button>
+        </form>
+    <% } %>
+    <% if (currentPage < Math.ceil(totalTracks / itemsPerPage)) { %>
+        <form action="/" method="GET">
+            <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
+            <input type="hidden" name="page" value="<%= (currentPage+1) %>">
+            <button type="submit">Next Page</button>
+        </form>
+    <% } %>
 </div>

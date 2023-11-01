@@ -1,6 +1,10 @@
 <div class="container">
     <h2> Drome Compare </h2>
     <form action="/" method="GET">
-        <input type="text" name="playlist" placeholder="Playlist url"> <button> Compare </button>
+        <label for="purl">Url</label>
+        <input type="text" id="purl" name="playlist" placeholder="Playlist url" value="<%= locals.purl ? purl : '' %>">
+        <label for="page">Page</label>
+        <input type="number" id="page" name="page" step="1" value="<%= locals.currentPage ? currentPage : 1 %>">
+        <button> Compare </button>
     </form>
 </div>
