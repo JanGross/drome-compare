@@ -9,6 +9,13 @@ const port = 3000
 const itemsPerPage = 27;
 const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
 
+const statusIcons = {
+    MISSING: '❌',
+    UNCONFIRMED: '❔',
+    TRACK_MISMATCH: '⚠️',
+    CONFIRMED: '✔️',
+}
+
 const spotifyApi = SpotifyApi.withClientCredentials(
     process.env.SPOTIFY_CLIENT_ID,
     process.env.SPOTIFY_CLIENT_SECRET
@@ -34,7 +41,8 @@ app.get('/', async (req, res) => {
     console.log(`Fetched page ${page} at offset ${itemsPerPage * (page-1)} of ${spotifyRes.tracks.total} tracks`);
 
     results = [];
-    let matched = 0;
+    let unconfirmed = 0;
+    let confirmed = 0;
     for (const [i, item] of paginatedSet.items.entries()) {
         let subQuery = encodeURIComponent(`${item.track.album.name} ${item.track.album.artists[0]?.name}`);
         let subSR = await subsonicApi.searchAlbums(subQuery);
@@ -46,19 +54,19 @@ app.get('/', async (req, res) => {
                 }
             }
         }
-        let icon = '❌';
+        let icon = statusIcons.MISSING;
         if (subsonicAlbum) {
-            matched++;
-            icon = '❔';
+            icon = statusIcons.UNCONFIRMED;
             //Only exactl album name matches
             if (subsonicAlbum.name == item.track.album.name) {
-                icon = '✔️';
+                icon = statusIcons.CONFIRMED;
             }
             //More tracks on Spotify
             if(item.track.album.total_tracks > subsonicAlbum.songCount) {
-                icon = '⚠️';
+                icon = statusIcons.TRACK_MISMATCH;
             }
         }
+
         console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
         if(!results.some(el => el.albumID === item.track.album.id)) {
             results.push({
@@ -70,6 +78,16 @@ app.get('/', async (req, res) => {
                 albumTotal: item.track.album.total_tracks,
                 matched: subsonicAlbum
             });
+
+            switch (icon) {
+                case statusIcons.CONFIRMED:
+                    confirmed++;
+                    break;
+                case statusIcons.UNCONFIRMED:
+                    unconfirmed++;
+                default:
+                    break;
+            }
         }
     };
     res.render('index', { 
@@ -79,7 +97,10 @@ app.get('/', async (req, res) => {
         currentPage: page,  
         itemsPerPage: itemsPerPage,
         totalTracks: spotifyRes.tracks.total, 
-        matchedCount: matched });
+        confirmedCount: confirmed,
+        unconfirmedCount: unconfirmed,
+        missingCount: results.length - (confirmed + unconfirmed)
+     });
 });
 
 (async () => {

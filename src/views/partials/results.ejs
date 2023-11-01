@@ -1,6 +1,11 @@
 <div>
     <h2>Results for <%= playlistName %></h2>
-    <p><%= results.length %> albums based on <%= itemsPerPage %> tracks (<%= totalTracks %> total) - <%= results.length - matchedCount %> unmatched</p>
+    <ul>
+        <li>💿<%= results.length %> albums based on <%= itemsPerPage %> tracks (<%= totalTracks %> total)</li>
+        <li>✔️ <%= confirmedCount %> Confirmed on this page</li>
+        <li>❔<%= unconfirmedCount %> Unconfirmed on this page</li>
+        <li>❌<%= missingCount %> Missing on this page</li>
+    </ul>
     <p>Page <%= currentPage %> / <%= Math.ceil(totalTracks / itemsPerPage) %></p>
     <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
         <% results.forEach(result => { %>
