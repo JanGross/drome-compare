@@ -3,23 +3,60 @@
 
 <head>
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400&display=swap" rel="stylesheet">
     <style>
+        @keyframes spinner {
+            from {transform:rotate(0deg);}
+            to {transform:rotate(360deg);}
+        }
+        * {
+            transition: all .25s;
+        }
         body {
             background-color: #291528;
             font-family: 'Noto Sans', sans-serif;
             color: aliceblue;
+            margin-top: 50px;
+        }
+        #mainTitle {
+            position: absolute;
+            top: 5px;
+            left: 50px;
+        }
+        #searchContainer {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        #resultContainer {
+            display:flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #statsContainer {
+            display: inline-block;
+            text-align: left;
+        }
+        #albumContainer {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 1500px;
+            flex: 1 1 750px;
+        }
+        #sideContainer {
+            max-width: 345px;
         }
         .result {
             margin-bottom: 5px;
             flex-direction: row;
             flex-wrap: nowrap;
-            width: 175px;
-            height: 175px;
+            width: 160px;
+            height: 160px;
             position: relative;
             text-align: center;
             margin: 15px;
@@ -62,25 +99,65 @@
         a::after {
             content: '💿';
         }
-        ul {
+        .flexList {
             display: flex;
-            justify-content: space-evenly;
             flex-direction: row;
             flex-wrap: wrap;
-            align-content: center;
-            align-items: center;
+            justify-content: flex-start;
         }
-        li {
+        .flexList span {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .pagination {
+            text-align: center;
+        }
+        .pagination form {
             display: inline-block;
         }
-    </style>
+        
+        button {
+            background: #635994;
+            color: white;
+            border-radius: 20px;
+            padding: 10px;
+            border: 2px solid #978dc9;
+        }
+        button:hover {
+            border: 2px solid #433392;
+        }
+        input[type=number] {
+            width: 40px;
+        }
+        form .inputRow {
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .spinner::before {
+            display: inline-block;            
+            content: '⚙️';
+            animation: spinner 2s infinite linear;
+        }
+        
+        </style>
 </head>
 
 <body>
+    <h1 id="mainTitle">🎶 Drome Compare </h1>
     <%- include ('./partials/searchHeader.ejs') %>
     <% if(locals.results) { %>
         <%- include ('partials/results.ejs') %>
     <% } %>
+
+    <script>
+        let submitButtons = document.querySelectorAll('button[type=submit]');
+        for (let i = 0; i < submitButtons.length; i++) {
+            submitButtons[i].addEventListener("click", function(event) {
+                event.target.classList.add('spinner');
+            });
+        }
+
+    </script>
 </body>
 
 </html>

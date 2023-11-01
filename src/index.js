@@ -6,7 +6,7 @@ const Subsonic = require('./subsonic.js');
 const app = express()
 const port = 3000
 
-const itemsPerPage = 27;
+const itemsPerPage = 28;
 const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
 
 const statusIcons = {

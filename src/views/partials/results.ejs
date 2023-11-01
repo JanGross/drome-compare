@@ -1,13 +1,5 @@
-<div>
-    <h2>Results for <%= playlistName %></h2>
-    <ul>
-        <li>💿<%= results.length %> albums based on <%= itemsPerPage %> tracks (<%= totalTracks %> total)</li>
-        <li>✔️ <%= confirmedCount %> Confirmed on this page</li>
-        <li>❔<%= unconfirmedCount %> Unconfirmed on this page</li>
-        <li>❌<%= missingCount %> Missing on this page</li>
-    </ul>
-    <p>Page <%= currentPage %> / <%= Math.ceil(totalTracks / itemsPerPage) %></p>
-    <div style="display:flex;justify-content: flex-start;flex-wrap: wrap;">
+<div id="resultContainer">
+    <div id="albumContainer">
         <% results.forEach(result => { %>
             <div class="result <%- result.matched ? 'matched' : 'unmatched' %>">
                 <img class="cover" src="<%= result.image %>" alt="">
@@ -28,18 +20,32 @@
             </div>
         <% });%>
     </div>
-    <% if (currentPage > 1) { %>
-        <form action="/" method="GET">
-            <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
-            <input type="hidden" name="page" value="<%= (currentPage-1) %>">
-            <button type="submit">Previous Page</button>
-        </form>
-    <% } %>
-    <% if (currentPage < Math.ceil(totalTracks / itemsPerPage)) { %>
-        <form action="/" method="GET">
-            <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
-            <input type="hidden" name="page" value="<%= (currentPage+1) %>">
-            <button type="submit">Next Page</button>
-        </form>
-    <% } %>
+    <div id="sideContainer">
+        <div id="statsContainer">
+            <h2>Results for <%= playlistName %></h2>
+            <div class="flexList">
+                <span>💿<%= results.length %> albums based on <%= itemsPerPage %> tracks (<%= totalTracks %> total)</span>
+                <span>✔️ <%= confirmedCount %> Confirmed on this page</span>
+                <span>❔<%= unconfirmedCount %> Unconfirmed on this page</span>
+                <span>❌<%= missingCount %> Missing on this page</span>
+            </div>
+        </div>
+        <div class="pagination">
+            <p>Page <%= currentPage %> / <%= Math.ceil(totalTracks / itemsPerPage) %></p>
+            <% if (currentPage > 1) { %>
+                <form action="/" method="GET">
+                    <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
+                    <input type="hidden" name="page" value="<%= (currentPage-1) %>">
+                    <button type="submit">Previous Page</button>
+                </form>
+            <% } %>
+            <% if (currentPage < Math.ceil(totalTracks / itemsPerPage)) { %>
+                <form action="/" method="GET">
+                    <input type="hidden" id="purl" name="playlist" value="<%= locals.purl ? purl : '' %>">
+                    <input type="hidden" name="page" value="<%= (currentPage+1) %>">
+                    <button type="submit">Next Page</button>
+                </form>
+            <% } %>
+        </div>
+    </div>
 </div>
