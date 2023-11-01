@@ -31,6 +31,16 @@ function urlToID (url) {
     return id;
 }
 
+async function searchAndMatch(albumName, artistName='') {
+    let subQuery = encodeURIComponent(`${albumName} ${artistName}`);
+    let subSR = await subsonicApi.searchAlbums(subQuery);
+    if (!subSR && artistName) {
+        //Back off and try search without artist name
+        return await searchAndMatch(albumName)
+    }
+    return subSR.album;
+}
+
 app.get('/', async (req, res) => {
     if(!req.query.playlist) { res.render('index'); return }
     let pid = urlToID(req.query.playlist);
@@ -46,9 +56,8 @@ app.get('/', async (req, res) => {
     let confirmed = 0;
     let mismatch = 0;
     for (const [i, item] of paginatedSet.items.entries()) {
-        let subQuery = encodeURIComponent(`${item.track.album.name} ${item.track.album.artists[0]?.name}`);
-        let subSR = await subsonicApi.searchAlbums(subQuery);
-        let subsonicAlbum = subSR?.album;
+        
+        let subsonicAlbum = await searchAndMatch(item.track.album.name, item.track.album.artists[0]?.name);
         if(Array.isArray(subsonicAlbum)) {
             let albumCollection = subsonicAlbum;
             subsonicAlbum = undefined;
