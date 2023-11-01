@@ -77,7 +77,7 @@
             width: 100%;
             bottom: 0;
             position: absolute;
-            padding: 10px;
+            margin-bottom: 10px;
         }
         .result .icon {
             position: absolute;
@@ -88,7 +88,7 @@
             font-size: 2em;
         }
         .albumTitle {
-            padding: 0 15px;
+            padding: 0 5px;
         }
         .withIcon {
             margin-left: 25px;
@@ -104,8 +104,19 @@
             text-decoration: none;
             display: block;
         }
-        a::after {
-            content: '💿';
+        a {
+            vertical-align: middle;
+            line-height: 20px;
+            display: inline;
+        }
+        a:hover {
+            transform: scale(1.5);
+        }
+        a svg {
+            margin-bottom: -4px;
+        }
+        a svg:hover {
+            transform: scale(1.25);
         }
         .flexList {
             display: flex;
