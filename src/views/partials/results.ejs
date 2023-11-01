@@ -7,7 +7,7 @@
                     <div class="overlayText">
                         <div class="albumTitle"><%= result.albumName %></div>
                         <% if (result.matched) { %>
-                            <% if (result.matched.album != result.albumName ) { %>
+                            <% if (result.matched.album.toLowerCase() != result.albumName.toLowerCase() ) { %>
                                 <%= result.matched.album %>
                             <% } %>
                             <div class="albumLinks">

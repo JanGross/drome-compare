@@ -59,7 +59,7 @@ app.get('/', async (req, res) => {
         if (subsonicAlbum) {
             icon = statusIcons.UNCONFIRMED;
             //Only exactl album name matches
-            if (subsonicAlbum.name == item.track.album.name) {
+            if (subsonicAlbum.name.toLowerCase() == item.track.album.name.toLowerCase()) {
                 icon = statusIcons.CONFIRMED;
             }
             //More tracks on Spotify
