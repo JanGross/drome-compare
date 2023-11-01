@@ -109,6 +109,11 @@ app.get('/', async (req, res) => {
      });
 });
 
+app.get('/coverArt.png', async (req, res) => {
+    let cover = await subsonicApi.getCoverArt(req.query.id);
+    res.end(Buffer.from(await cover.arrayBuffer(), 'binary'));
+});
+
 (async () => {
     app.listen(port, () => {
         console.log(`Server listening on port ${port}`)
