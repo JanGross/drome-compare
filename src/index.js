@@ -8,6 +8,7 @@ const port = 3000
 
 const itemsPerPage = 28;
 const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
+const domain = process.env.SUBSONIC_ENDPOINT.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0];
 
 const statusIcons = {
     MISSING: '❌',
@@ -49,9 +50,11 @@ app.get('/', async (req, res) => {
         let subSR = await subsonicApi.searchAlbums(subQuery);
         let subsonicAlbum = subSR?.album;
         if(Array.isArray(subsonicAlbum)) {
-            for (let i = 0; i < subsonicAlbum.length; i++) {
-                if(subsonicAlbum[i].album.toLowerCase().startsWith(item.track.album.name.toLowerCase())) {
-                    subsonicAlbum = subsonicAlbum[i];
+            let albumCollection = subsonicAlbum;
+            subsonicAlbum = undefined;
+            for (let i = 0; i < albumCollection.length; i++) {
+                if(albumCollection[i].album.toLowerCase().startsWith(item.track.album.name.toLowerCase())) {
+                    subsonicAlbum = albumCollection[i];
                 }
             }
         }
@@ -96,7 +99,8 @@ app.get('/', async (req, res) => {
             }
         }
     };
-    res.render('index', { 
+    res.render('index', {
+        domain: domain,
         purl: req.query.playlist, 
         spotifyRes: spotifyRes, results: results, 
         playlistName: spotifyRes.name, 
