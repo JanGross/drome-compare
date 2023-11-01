@@ -49,7 +49,7 @@
             flex: 1 1 750px;
         }
         #sideContainer {
-            max-width: 345px;
+            max-width: 350px;
         }
         .result {
             margin-bottom: 5px;
@@ -79,7 +79,7 @@
             position: absolute;
             padding: 10px;
         }
-        .icon {
+        .result .icon {
             position: absolute;
             top: 0;
             padding: 5px 10px 10px 5px;
@@ -90,7 +90,15 @@
         .albumTitle {
             padding: 0 15px;
         }
-
+        .withIcon {
+            margin-left: 25px;
+            position: relative;
+        }
+        .withIcon .icon {
+            position: absolute;
+            left: -25px;
+            width: 25px;
+        }
         a {
             color:aliceblue;
             text-decoration: none;
@@ -104,6 +112,7 @@
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: flex-start;
+            line-height: 2em;
         }
         .flexList span {
             display: inline-block;

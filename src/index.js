@@ -43,6 +43,7 @@ app.get('/', async (req, res) => {
     results = [];
     let unconfirmed = 0;
     let confirmed = 0;
+    let mismatch = 0;
     for (const [i, item] of paginatedSet.items.entries()) {
         let subQuery = encodeURIComponent(`${item.track.album.name} ${item.track.album.artists[0]?.name}`);
         let subSR = await subsonicApi.searchAlbums(subQuery);
@@ -85,6 +86,10 @@ app.get('/', async (req, res) => {
                     break;
                 case statusIcons.UNCONFIRMED:
                     unconfirmed++;
+                    break;
+                case statusIcons.TRACK_MISMATCH:
+                    mismatch++;
+                    break;
                 default:
                     break;
             }
@@ -99,7 +104,8 @@ app.get('/', async (req, res) => {
         totalTracks: spotifyRes.tracks.total, 
         confirmedCount: confirmed,
         unconfirmedCount: unconfirmed,
-        missingCount: results.length - (confirmed + unconfirmed)
+        mismatchCount: mismatch,
+        missingCount: results.length - (confirmed + unconfirmed + mismatch)
      });
 });
 
