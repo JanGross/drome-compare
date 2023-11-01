@@ -74,6 +74,7 @@ app.get('/', async (req, res) => {
                 icon: icon,
                 name: item.track.name,
                 image: item.track.album.images[0]?.url,
+                albumArtist: item.track.album.artists[0].name,
                 albumName: item.track.album.name,
                 albumID: item.track.album.id,
                 albumTotal: item.track.album.total_tracks,
