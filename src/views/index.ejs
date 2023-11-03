@@ -18,33 +18,9 @@
         <%- include ('partials/results.ejs') %>
     <% } %>
 
-    <script>
-        let submitButtons = document.querySelectorAll('button[type=submit]');
-        for (let i = 0; i < submitButtons.length; i++) {
-            submitButtons[i].addEventListener("click", function(event) {
-                event.target.classList.add('spinner');
-            });
-        }
-
-    </script>
-
+    <script src="/static/js/main.js"></script>
 </div>
-<script>
-    let serviceIcons = document.querySelectorAll(".albumLinks a");
-    for (let icon of serviceIcons) {
-        let mode = icon.classList.contains('spotify') ? 'full-cut' : 'no-cut';
-        icon.addEventListener("mouseover", function(event) {
-            event.target.closest('.result').querySelector(`.cover.subsonic`).classList.add(mode);
-            event.target.closest('.result').querySelector('.cover.subsonic').classList.remove('half-cut');
-        });
-        icon.addEventListener("mouseout", function(event) {
-            event.target.closest('.result').querySelector('.cover.subsonic').classList.add('half-cut');
-            event.target.closest('.result').querySelector('.cover.subsonic').classList.remove(mode);
-        });
-
-    }
-
-</script>
+<script src="/static/js/results.js"></script>
 </body>
 
 </html>
