@@ -1,5 +1,6 @@
 require('dotenv').config();
-const express = require('express')
+const path = require('path');
+const express = require('express');
 const { SpotifyApi } = require("@spotify/web-api-ts-sdk");
 const Subsonic = require('./subsonic.js');
 
@@ -25,6 +26,8 @@ const spotifyApi = SpotifyApi.withClientCredentials(
 app.set('view engine', 'ejs');
 app.set('views', './src/views');
 
+app.use('/static', express.static(path.join(__dirname, 'static')));
+console.log (__dirname + '\\static');
 function urlToID (url) {
     //https://open.spotify.com/playlist/2GBjRoOMS1Zhb0owyfKIzs?si=1d8dc4db4a494dfd
     let id = url.split('/').pop().split("?")[0];
@@ -127,6 +130,7 @@ app.get('/coverArt.png', async (req, res) => {
     let cover = await subsonicApi.getCoverArt(req.query.id);
     res.end(Buffer.from(await cover.arrayBuffer(), 'binary'));
 });
+
 
 (async () => {
     app.listen(port, () => {
