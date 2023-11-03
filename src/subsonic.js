@@ -6,7 +6,7 @@ module.exports = class Subsonic {
     constructor(endpoint, user, pass) {
         this.endpoint = endpoint;
         this.user = user;
-        this.salt = "c19b2d";
+        this.salt = crypto.randomBytes(8).toString('hex');
         this.pwHash = crypto.createHash('md5').update(pass+this.salt).digest('hex');
     }
 
