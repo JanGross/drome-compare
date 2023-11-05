@@ -34,8 +34,24 @@ function urlToID (url) {
     return id;
 }
 
+function sanitizeString(input) {
+    return input.replace(/[:"']/g,'');
+}
+
+function matchingTitles(subsonicTitle, spotifyTitle, strict=false) {
+    subsonicTitle = sanitizeString(subsonicTitle).toLowerCase();
+    spotifyTitle = sanitizeString(spotifyTitle).toLowerCase();
+
+    if (!strict) {
+        return subsonicTitle.startsWith(spotifyTitle);
+    }
+
+    return subsonicTitle == spotifyTitle;
+}
+
 async function searchAndMatch(albumName, artistName='') {
-    let subQuery = encodeURIComponent(`${albumName} ${artistName}`);
+    let searchTerm = sanitizeString(`${albumName} ${artistName}`);
+    let subQuery = encodeURIComponent(searchTerm);
     let subSR = await subsonicApi.searchAlbums(subQuery);
     if (!subSR && artistName) {
         //Back off and try search without artist name
@@ -65,8 +81,11 @@ app.get('/', async (req, res) => {
             let albumCollection = subsonicAlbum;
             subsonicAlbum = undefined;
             for (let i = 0; i < albumCollection.length; i++) {
-                if(albumCollection[i].album.toLowerCase().startsWith(item.track.album.name.toLowerCase())) {
+                let subsonicName = albumCollection[i].album;
+                let spotifyName = item.track.album.name;
+                if(matchingTitles(subsonicName, spotifyName)) {
                     subsonicAlbum = albumCollection[i];
+                    break;
                 }
             }
         }
@@ -74,7 +93,7 @@ app.get('/', async (req, res) => {
         if (subsonicAlbum) {
             icon = statusIcons.UNCONFIRMED;
             //Only exactl album name matches
-            if (subsonicAlbum.name.toLowerCase() == item.track.album.name.toLowerCase()) {
+            if (matchingTitles(subsonicAlbum.name, item.track.album.name)) {
                 icon = statusIcons.CONFIRMED;
             }
             //More tracks on Spotify
