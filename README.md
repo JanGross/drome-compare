@@ -26,7 +26,6 @@ If you hover the Spotify or Navidrome icons, the respecitve cover will be shown 
 This is to make identifying both album more convenient.
 
 ToDo:  
-- Match by track instead of album
 - Add album index to frontend
 - Colored icons
 - List filtering
