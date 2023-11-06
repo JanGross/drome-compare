@@ -13,22 +13,29 @@ module.exports = class Subsonic {
     async apiRequest(method, additionalArgs=undefined) {
         let url = [this.endpoint,`/${method}?u=${this.user}&t=${this.pwHash}&s=${this.salt}&c=drome-compare&v=1.13.0&`, additionalArgs].join('');
         let res = await fetch(url);
+        
+        //getCoverArt returns binary, no xml parsing needed.
+        if( method === 'getCoverArt') {
+            return res.blob(); 
+        }
+
+        const options = {
+            ignoreAttributes : false,
+            attributeNamePrefix: ''
+        };
+        const parser = new XMLParser(options);
+        let xml = await res.text();
+        const result = parser.parse(xml);
 
         switch (method) {
             case 'search3':
-                let xml = await res.text();
-                const options = {
-                    ignoreAttributes : false,
-                    attributeNamePrefix: ''
-                };
-                const parser = new XMLParser(options);
-                const result = parser.parse(xml);
-                return { xml: xml, result: result["subsonic-response"] };
+                return { xml: xml, result: result["subsonic-response"]["searchResult3"] };
                 break;
-            case 'getCoverArt':
-                return res.blob();
+            case 'getAlbum':
+                return result["subsonic-response"]["album"];
                 break;
             default:
+                return result;
                 break;
         }
         
@@ -38,10 +45,16 @@ module.exports = class Subsonic {
         return res;
     }
 
-    async searchAlbums(query) {
-        let params = `query=${query}&songCount=0&artistCount=0`;
+    async searchItems(query) {
+        let params = `query=${query}&artistCount=0`;
         let res = await this.apiRequest("search3", params);
-        return res.result["searchResult3"];
+        return res.result;
+    }
+
+    async getAlbum(albumId) {
+        let res = await this.apiRequest('getAlbum', `id=${albumId}`);
+        res.album = res.name; //Map album name to album property for consistency
+        return res;
     }
 
     async getCoverArt(coverID) {
