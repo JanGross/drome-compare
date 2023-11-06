@@ -27,7 +27,6 @@ app.set('view engine', 'ejs');
 app.set('views', './src/views');
 
 app.use('/static', express.static(path.join(__dirname, 'static')));
-console.log (__dirname + '\\static');
 function urlToID (url) {
     //https://open.spotify.com/playlist/2GBjRoOMS1Zhb0owyfKIzs?si=1d8dc4db4a494dfd
     let id = url.split('/').pop().split("?")[0];
@@ -38,26 +37,99 @@ function sanitizeString(input) {
     return input.replace(/[:"']/g,'');
 }
 
+function computeStringOverlapPercent(strA, strB) {
+    let matches = 0;
+    for (let index = 0; index < strA.length; index++) {
+        if(strA[index] == strB[index]) {
+            matches++;
+        } else {
+            break;
+        }
+        
+    }
+    return (matches / strA.length) * 100
+}
+
 function matchingTitles(subsonicTitle, spotifyTitle, strict=false) {
     subsonicTitle = sanitizeString(subsonicTitle).toLowerCase();
     spotifyTitle = sanitizeString(spotifyTitle).toLowerCase();
 
     if (!strict) {
-        return subsonicTitle.startsWith(spotifyTitle);
+        //Cases where album versions are appended (deluxe / extended edition etc.)
+        if (subsonicTitle.startsWith(spotifyTitle)){
+            return true;
+        }
+
+        //Sometimes spellings such as Part / Pt. are different. However, if the string matches up to 50% we can soft-match.
+        let overlapPercent = computeStringOverlapPercent(subsonicTitle, spotifyTitle);
+        if(overlapPercent > 50) {
+            return true;
+        }
+
+        return false;
     }
 
     return subsonicTitle == spotifyTitle;
 }
 
-async function searchAndMatch(albumName, artistName='') {
-    let searchTerm = sanitizeString(`${albumName} ${artistName}`);
-    let subQuery = encodeURIComponent(searchTerm);
-    let subSR = await subsonicApi.searchAlbums(subQuery);
-    if (!subSR && artistName) {
-        //Back off and try search without artist name
-        return await searchAndMatch(albumName)
+async function searchAndMatch(track, iteration=0) {
+    let albumName = track.album.name;
+    let trackName = track.name;
+    let artistName = track.album.artists[0]?.name; 
+    if(!artistName) { debugger }
+
+    let searchTerm = ''; 
+    switch (iteration) {
+        case 0:
+            searchTerm = sanitizeString(`${albumName} ${artistName}`);
+            break;
+        case 1:
+            //Back off and try search without artist name
+            searchTerm = sanitizeString(`${albumName}`);
+            break;
+        case 2:
+            //No direct album match, try matching by song name instead
+            searchTerm = sanitizeString(`${trackName} ${artistName}`);
+            break;
+        case 3:
+            //Last try, song name without artist
+            searchTerm = sanitizeString(`${trackName}`);
+            break;
+
+        default:
+            //No match after all
+            return undefined;
     }
-    return subSR.album;
+    
+    let subQuery = encodeURIComponent(searchTerm);
+    let subSR = await subsonicApi.searchItems(subQuery);
+
+    
+    
+    let result = [];
+    if(subSR.album) result = Array.isArray(subSR.album) ? subSR.album : [subSR.album];
+    if(subSR.song)  result = [...result, ...(Array.isArray(subSR.song) ? subSR.song : [subSR.song])];
+    
+    if (!subSR) {
+        return await searchAndMatch(track, iteration+1)
+    }
+
+    if(Array.isArray(result)) {
+        let collection = result;
+        subsonicAlbum = undefined;
+        for (let i = 0; i < collection.length; i++) {
+            if (!collection[i]) { continue }
+            let subsonicName = collection[i].album;
+            let spotifyName = albumName;
+            if(matchingTitles(subsonicName, spotifyName)) {
+                subsonicAlbum = collection[i].albumId ? subsonicApi.getAlbum(collection[i].albumId) : collection[i]; //If no albumId is present, it alreaady is an album
+                if(matchingTitles(subsonicName, spotifyName, strict=true)) break;
+            }
+        }
+        result = subsonicAlbum;
+    }
+
+    return result;
 }
 
 app.get('/', async (req, res) => {
@@ -76,24 +148,13 @@ app.get('/', async (req, res) => {
     let mismatch = 0;
     for (const [i, item] of paginatedSet.items.entries()) {
         
-        let subsonicAlbum = await searchAndMatch(item.track.album.name, item.track.album.artists[0]?.name);
-        if(Array.isArray(subsonicAlbum)) {
-            let albumCollection = subsonicAlbum;
-            subsonicAlbum = undefined;
-            for (let i = 0; i < albumCollection.length; i++) {
-                let subsonicName = albumCollection[i].album;
-                let spotifyName = item.track.album.name;
-                if(matchingTitles(subsonicName, spotifyName)) {
-                    subsonicAlbum = albumCollection[i];
-                    break;
-                }
-            }
-        }
+        let subsonicAlbum = await searchAndMatch(item.track);
+       
         let icon = statusIcons.MISSING;
         if (subsonicAlbum) {
             icon = statusIcons.UNCONFIRMED;
             //Only exactl album name matches
-            if (matchingTitles(subsonicAlbum.name, item.track.album.name)) {
+            if (matchingTitles(subsonicAlbum.album, item.track.album.name, strict=true)) {
                 icon = statusIcons.CONFIRMED;
             }
             //More tracks on Spotify
@@ -112,7 +173,7 @@ app.get('/', async (req, res) => {
                 albumName: item.track.album.name,
                 albumID: item.track.album.id,
                 albumTotal: item.track.album.total_tracks,
-                matched: subsonicAlbum
+                matched: subsonicAlbum,
             });
 
             switch (icon) {
