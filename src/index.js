@@ -122,7 +122,7 @@ async function searchAndMatch(track, iteration=0) {
             let subsonicName = collection[i].album;
             let spotifyName = albumName;
             if(matchingTitles(subsonicName, spotifyName)) {
-                subsonicAlbum = collection[i].albumId ? subsonicApi.getAlbum(collection[i].albumId) : collection[i]; //If no albumId is present, it alreaady is an album
+                subsonicAlbum = collection[i].albumId ? await subsonicApi.getAlbum(collection[i].albumId) : collection[i]; //If no albumId is present, it alreaady is an album
                 if(matchingTitles(subsonicName, spotifyName, strict=true)) break;
             }
         }
