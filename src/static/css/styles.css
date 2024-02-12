@@ -97,6 +97,13 @@ body {
 
 .overrideDropdown {
     display:none;
+    position: absolute;
+    width: 53px;
+    height: 51px;
+    left: 0;
+    top: 0;
+    background: transparent;
+    border: none;
 }
 
 .result .icon:hover .overrideDropdown {
