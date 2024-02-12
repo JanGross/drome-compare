@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const { SpotifyApi } = require("@spotify/web-api-ts-sdk");
 const Subsonic = require('./subsonic.js');
+const LocalDB = require('./localdb.js');
 
 const app = express()
 const port = 3000
@@ -10,6 +11,7 @@ const port = 3000
 const itemsPerPage = 28;
 const subsonicApi = new Subsonic(process.env.SUBSONIC_ENDPOINT, process.env.SUBSONIC_USER, process.env.SUBSONIC_PASS);
 const domain = process.env.SUBSONIC_ENDPOINT.match(/^https?\:\/\/([^\/?#]+)(?:[\/?#]|$)/i)[0];
+const db = new LocalDB("./db/compare.db");
 
 const statusIcons = {
     MISSING: '❌',
@@ -147,7 +149,7 @@ app.get('/', async (req, res) => {
     let confirmed = 0;
     let mismatch = 0;
     for (const [i, item] of paginatedSet.items.entries()) {
-        
+        let dbEntry = await db.GetAlbumByUID(item.track.album.id);
         let subsonicAlbum = await searchAndMatch(item.track);
        
         let icon = statusIcons.MISSING;
@@ -163,8 +165,25 @@ app.get('/', async (req, res) => {
             }
         }
 
-        console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
-        if(!results.some(el => el.albumID === item.track.album.id)) {
+        if(dbEntry) {
+            switch (dbEntry.status) {
+                case 0:
+                    icon = statusIcons.MISSING;
+                    break;
+                case 1:
+                    icon = statusIcons.UNCONFIRMED;
+                    break;
+                case 2:
+                    icon = statusIcons.TRACK_MISMATCH;
+                    break;
+                case 3:
+                    icon = statusIcons.CONFIRMED;
+                    break
+                default:
+                    break;
+            }
+        }
+
             results.push({
                 icon: icon,
                 name: item.track.name,
