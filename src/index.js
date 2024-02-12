@@ -183,7 +183,9 @@ app.get('/', async (req, res) => {
                     break;
             }
         }
-
+        
+        console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
+        if(!results.some(el => el.albumID === item.track.album.id)) {
             results.push({
                 icon: icon,
                 name: item.track.name,
