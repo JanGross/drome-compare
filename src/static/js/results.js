@@ -11,3 +11,25 @@ for (let icon of serviceIcons) {
     });
 
 }
+
+function handleOverride(select) {
+    console.log(select.attributes["album-id"].value);
+    console.log(select.value);
+    fetch('/overrideStatus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          albumID: select.attributes["album-id"].value,
+          status: select.value
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        data = JSON.parse(data);
+        document.getElementById(`icon_${data['result']['albumID']}`).classList.add('override');
+        document.getElementById(`symbol_${data['result']['albumID']}`).innerText = data['result']['symbol'];
+      })
+      .catch((error) => console.error('Error:', error));
+}

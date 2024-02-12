@@ -14,7 +14,7 @@ module.exports = class LocalDB {
             if (err) {
                 console.error('Error checking if table exists', err.message);
                 return;
-            } 
+            }
             if (!table) {
                 console.log('Required tables missing! Please run initDB first.');
             }
@@ -46,13 +46,18 @@ module.exports = class LocalDB {
             status = excluded.status,
             comment = COALESCE(excluded.comment, comment);
         `;
-      
-        db.run(query, [albumID, status, comment], (err) => {
-          if (err) {
-            console.error('Error inserting or updating album', err.message);
-          } else {
-            console.log('Album inserted or updated successfully.');
-          }
+
+        return new Promise((resolve, reject) => {
+            this.db.run(query, [albumID, status, comment], async (err) => {
+                if (err) {
+                    console.error('Error inserting or updating album', err.message);
+                    reject(err);
+                } else {
+                    console.log('Album inserted or updated successfully.');
+                    let result = await this.GetAlbumByUID(albumID);
+                    resolve(result);
+                }
+            });
         });
-      };
+    };
 }

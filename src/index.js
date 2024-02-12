@@ -1,7 +1,7 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
-const { SpotifyApi } = require("@spotify/web-api-ts-sdk");
+const { SpotifyApi, ConsoleLoggingErrorHandler } = require("@spotify/web-api-ts-sdk");
 const Subsonic = require('./subsonic.js');
 const LocalDB = require('./localdb.js');
 
@@ -27,6 +27,7 @@ const spotifyApi = SpotifyApi.withClientCredentials(
 
 app.set('view engine', 'ejs');
 app.set('views', './src/views');
+app.use(express.json());
 
 app.use('/static', express.static(path.join(__dirname, 'static')));
 function urlToID (url) {
@@ -134,6 +135,21 @@ async function searchAndMatch(track, iteration=0) {
     return result;
 }
 
+function mapSymbol(i) {
+    switch (i) {
+        case 0:
+            return icon = statusIcons.MISSING;
+        case 1:
+            return icon = statusIcons.UNCONFIRMED;
+        case 2:
+            return icon = statusIcons.TRACK_MISMATCH;
+        case 3:
+            return icon = statusIcons.CONFIRMED;
+        default:
+            return -1;
+    }
+}
+
 app.get('/', async (req, res) => {
     if(!req.query.playlist) { res.render('index'); return }
     let pid = urlToID(req.query.playlist);
@@ -165,28 +181,16 @@ app.get('/', async (req, res) => {
             }
         }
 
+        let dbOverride = false;
         if(dbEntry) {
-            switch (dbEntry.status) {
-                case 0:
-                    icon = statusIcons.MISSING;
-                    break;
-                case 1:
-                    icon = statusIcons.UNCONFIRMED;
-                    break;
-                case 2:
-                    icon = statusIcons.TRACK_MISMATCH;
-                    break;
-                case 3:
-                    icon = statusIcons.CONFIRMED;
-                    break
-                default:
-                    break;
-            }
+            dbOverride = true;
+            icon = mapSymbol(dbEntry.status);
         }
         
         console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
         if(!results.some(el => el.albumID === item.track.album.id)) {
             results.push({
+                override: dbOverride,
                 icon: icon,
                 name: item.track.name,
                 image: item.track.album.images[0]?.url,
@@ -225,6 +229,20 @@ app.get('/', async (req, res) => {
         mismatchCount: mismatch,
         missingCount: results.length - (confirmed + unconfirmed + mismatch)
      });
+});
+
+app.post('/overrideStatus', async (req, res) => {
+    const albumID = req.body.albumID;
+    const status = req.body.status;
+    console.log(`Received Status Override fr ${albumID} -> ${status}`);
+    if (status === "unset") {
+        console.warn("Unset not implemented!");
+        return;
+    }
+
+    let result = await db.InsertOrUpdateAlbum(albumID, status);
+    result.symbol = mapSymbol(result.status)
+    res.json(JSON.stringify({ result: result }));
 });
 
 app.get('/coverArt.png', async (req, res) => {

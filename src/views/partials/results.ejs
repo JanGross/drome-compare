@@ -33,7 +33,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="icon"><%= result.icon %></div>
+                <div id="icon_<%= result.albumID %>" class="icon <%- result.override ? 'override' : 'default' %>">
+                    <div id="symbol_<%= result.albumID %>"><%= result.icon %></div>
+                    <select name="statusOverride" album-id="<%= result.albumID %>" class="overrideDropdown" onchange="handleOverride(this)">
+                        <option value="unset">-</option>
+                        <option value="0">Missing</option>
+                        <option value="1">Unconfirmed</option>
+                        <option value="2">Track Mismatch</option>
+                        <option value="3">Complete</option>
+                    </select>
+                </div>
             </div>
         <% });%>
     </div>
