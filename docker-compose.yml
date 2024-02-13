@@ -1,8 +1,9 @@
 services:
   drome-compare:
     build: .
+    command: sh -c "node src/initDB.js && node src/index.js"
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3111:3000"
     volumes:
-      - ./.env:/app/.env
+      - "./db:/app/db"
