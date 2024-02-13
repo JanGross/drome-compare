@@ -1,5 +1,5 @@
 # Drome Compare  
-Check backup completeness of Spotify playlists
+Scrappy tool to check backup completeness of Spotify playlists
 
 ## Configuration:
 ### Spotify   
@@ -11,6 +11,7 @@ The Subsonic endpoint for Navidrone runs under /rest
 User and Pass are your Subsonic/Navidrome user
 
 ## Usage
+Prepare the sqlite database: `node ./src/initDB.js`  
 Once configured, with all packages installed, run `node ./src/index.js`.  
 The web interface can be accessed via http://localhost:3000
 
@@ -24,6 +25,12 @@ The web interface can be accessed via http://localhost:3000
 The squares display both cover images split diagonally.  
 If you hover the Spotify or Navidrome icons, the respecitve cover will be shown exclusively.  
 This is to make identifying both album more convenient.
+
+### Notes and overrides
+Hovering over an album shows a tiny textbox. Text entered here (make sure to click the save button) will be visible when hovering the 📝 icon.  
+
+The override menu can be opened by clicking the staus icon.  
+Albums with an active override will have a highlited status corner. Currently unsetting / removing an override is not supported.
 
 ToDo:  
 - Add album index to frontend
