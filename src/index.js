@@ -182,16 +182,17 @@ app.get('/', async (req, res) => {
         }
 
         let dbOverride = false;
-        if(dbEntry) {
-            dbOverride = true;
+        if(dbEntry && dbEntry.status) {
             icon = mapSymbol(dbEntry.status);
+            dbOverride = true;
         }
         
         console.log(`[${i+1}/${paginatedSet.items.length}] ${icon} - ${item.track.album.name} (${item.track.name})`);
         if(!results.some(el => el.albumID === item.track.album.id)) {
             results.push({
-                override: dbOverride,
                 icon: icon,
+                override: dbOverride,
+                comment: dbEntry ? dbEntry.comment : null,
                 name: item.track.name,
                 image: item.track.album.images[0]?.url,
                 albumArtist: item.track.album.artists[0].name,
@@ -242,6 +243,15 @@ app.post('/overrideStatus', async (req, res) => {
 
     let result = await db.InsertOrUpdateAlbum(albumID, status);
     result.symbol = mapSymbol(result.status)
+    res.json(JSON.stringify({ result: result }));
+});
+
+app.post('/comment', async (req, res) => {
+    const albumID = req.body.albumID;
+    const commentStr = req.body.comment;
+    console.log(`Received Comment for ${albumID} -> ${commentStr}`);
+
+    let result = await db.InsertOrUpdateAlbum(albumID, null, commentStr);
     res.json(JSON.stringify({ result: result }));
 });
 

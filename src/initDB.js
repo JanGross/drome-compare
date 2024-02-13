@@ -18,7 +18,7 @@ const db = new sqlite3.Database('./db/compare.db', sqlite3.OPEN_READWRITE | sqli
 const createTableSQL = `
   CREATE TABLE IF NOT EXISTS albums (
     albumID TEXT PRIMARY KEY,
-    status INTEGER NOT NULL,
+    status INTEGER,
     comment TEXT
   );`;
 

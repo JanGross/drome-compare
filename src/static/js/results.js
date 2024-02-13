@@ -33,3 +33,25 @@ function handleOverride(select) {
       })
       .catch((error) => console.error('Error:', error));
 }
+
+function handleComment(button) {
+  let albumID = button.attributes['album-id'].value;
+  let commentStr = document.getElementById(`comment_${albumID}`).value;
+  console.log(`Sending comment for ${albumID}: ${commentStr}`);
+  fetch('/comment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        albumID: albumID,
+        comment: commentStr
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      data = JSON.parse(data);
+      console.log(data);
+    })
+    .catch((error) => console.error('Error:', error));
+}

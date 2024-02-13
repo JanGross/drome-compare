@@ -39,11 +39,11 @@ module.exports = class LocalDB {
         });
     }
 
-    async InsertOrUpdateAlbum(albumID, status, comment = null) {
+    async InsertOrUpdateAlbum(albumID, status = null, comment = null) {
         const query = `
           INSERT INTO albums (albumID, status, comment) VALUES (?, ?, ?)
           ON CONFLICT(albumID) DO UPDATE SET
-            status = excluded.status,
+            status = COALESCE(excluded.status, status),
             comment = COALESCE(excluded.comment, comment);
         `;
 
