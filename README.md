@@ -24,13 +24,17 @@ The web interface can be accessed via http://localhost:3000
 ### Cover image previews  
 The squares display both cover images split diagonally.  
 If you hover the Spotify or Navidrome icons, the respecitve cover will be shown exclusively.  
-This is to make identifying both album more convenient.
+This is to make identifying both albums more convenient.  
+![split_cover](https://github.com/JanGross/drome-compare/assets/13641301/eaa307aa-b4df-40a0-8b8d-41f6741bf076)
+
 
 ### Notes and overrides
 Hovering over an album shows a tiny textbox. Text entered here (make sure to click the save button) will be visible when hovering the 📝 icon.  
 
 The override menu can be opened by clicking the staus icon.  
 Albums with an active override will have a highlited status corner. Currently unsetting / removing an override is not supported.
+![image](https://github.com/JanGross/drome-compare/assets/13641301/141db27b-c5b7-49b4-bab7-e72abb17a0ed)
+
 
 ToDo:  
 - Add album index to frontend
